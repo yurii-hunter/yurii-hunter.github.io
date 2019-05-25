@@ -1,0 +1,20 @@
+---
+title: "Find.By - find and verify locators"
+layout: post
+date: 2018-10-19 12:00
+tag:
+- findby
+- resharper
+- plugin
+image: /assets/images/banner_featured.png
+headerImage: true
+projects: true
+hidden: true # don't count this post in blog pagination
+description: "Find.By - find and verify locators"
+category: project
+author: yurii-hunter
+externalLink: false
+---
+## Find.By
+
+<iframe width="810" height="500" src="https://www.youtube.com/embed/iaJ_VY-dNNc" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
