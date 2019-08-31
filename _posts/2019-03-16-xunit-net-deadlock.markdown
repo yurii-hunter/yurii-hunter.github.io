@@ -2,7 +2,7 @@
 title: "Зависшие тесты в xUnit.net"
 layout: post
 date: 2019-03-16 12:00
-image: /assets/images/xunit-position.png
+image: /assets/images/2019/xunit-position.png
 headerImage: false
 tag:
 - xunit
@@ -20,4 +20,4 @@ description: Зависшие тесты в xUnit.net
 
 Сами ребята из xUnit - очень специфичные и говорят, что исправлять ничего не будут и такое поведение As Designed. Думаю это мантра, с которой они начинают свой день.
 
-![](/assets/images/xunit-position.png)
+![](/assets/images/2019/xunit-position.png)

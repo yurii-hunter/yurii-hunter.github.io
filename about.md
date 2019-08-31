@@ -1,30 +1,12 @@
 ---
-title: Автор
 layout: page
+title: About
+featured_image: /assets/images/pages/about.jpg
 ---
-![Profile Image]({{ site.url }}/{{ site.picture }})
+Я разработчик в тестировании. В рабочее время пишу автотесты и инструменты для тестирования. В основном использую C#, реже PowerShell и совсем иногда Python.
+Для UI тестов использую Selenium, а точнее обертку [Selenet](https://github.com/the-bat-io/selenet). Как unit тест фреймворк предпочитаю NUnit и ненавижу xUnit. Specflow... ну, на любителя.
+Уверен, что ReportPortal - лучший сервис для сбора и анализа тест ранов.
 
-<p>
-Меня зовут Юра. Я Automation Lead.
-Занимаюсь автоматизацией 5 лет. Делюсь опытом и обучаю начинающих автоматизаторов.
-Если у вас есть сложности и вопросы по автоматизации - пишите мне в соц сетях.
-</p>
+В свободное время пишу плагины. Это лучший метод адаптировать инструменты под свои нужды. Я много использую решарпер, он позволяет писать легко и красиво. Если нужно писать xpath локаторы быстро и без ошибок, то рекомендую установить [Find.By](https://github.com/the-bat-io/find-by).
 
-<h2>Skills</h2>
-
-<ul class="skill-list">
-	<li>Git</li>
-	<li>C#</li>
-	<li>Selenium Web Driver</li>
-	<li>Selenium Grid</li>
-	<li>SpecFlow</li>
-	<li>ReportPortal</li>
-</ul>
-
-<h2>Projects</h2>
-
-<ul>
-	<li><a href="https://github.com/yurii-hunter/find-by">Find.By</a></li>
-	<li><a href="/macro-specflow">Macro.SpecFlow</a></li>
-	<li><a href="/typhoon">Typhoon</a></li>
-</ul>
+Пытаюсь быть продуктивным. Сложно не отвлекаться и делать то, что нужно. Стараюсь использовать [GTD](https://www.yakaboo.ua/kak-privesti-dela-v-porjadok-iskusstvo-produktivnosti-bez-stressa-1674507.html), [Todoist](https://todoist.com/r/yurii_myslyvets_xbfvoz) и [Pomodoro](https://chrome.google.com/webstore/detail/marinara-pomodoro%C2%AE-assist/lojgmehidjdhhbmpjfamhpkpodfcodef). Эта комбинация решает много проблем. Рекомендую попробовать.

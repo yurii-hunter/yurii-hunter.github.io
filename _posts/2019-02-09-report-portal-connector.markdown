@@ -2,7 +2,6 @@
 title: "Как настроить отправку результатов тестов в Report Portal"
 layout: post
 date: 2019-02-09 12:00
-image: /assets/images/null
 headerImage: false
 tag:
 - xunit

@@ -2,7 +2,7 @@
 title: "AutoFixture и подготовка тестовых данных"
 layout: post
 date: 2019-03-30 12:00
-image: /assets/images/autofixture.jpg
+image: /assets/images/2019/autofixture.jpg
 headerImage: false
 tag:
 - autofixture

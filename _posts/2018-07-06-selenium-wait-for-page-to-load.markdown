@@ -2,7 +2,7 @@
 title: "Selenium - ожидание загрузки страницы"
 layout: post
 date: 2018-07-06 12:00
-image: /assets/images/loading_featured.gif
+image: /assets/images/2018/loading_featured.gif
 headerImage: false
 tag:
 - selenium
@@ -14,7 +14,7 @@ description: Selenium - ожидание загрузки страницы
 ---
 Ожидание загрузки страницы в Selenium леко исправить с помощью написания простого скрипта. Идеально если у вас классное приложение и на момент загрузки данных показывает какой-нибудь spinner. В этом случае можно просто проверять наличие такого элемента на страничке и если его нет, то, вероятнее всего, все даные подгрузились и можно продолжать взаимодействие с элементами. Можно ждать body элемент, можно проверять readyState у документа. Но сегодня я раскажу вам еще одну вожможноть - это PerformanceTiming.
 
-![loading](/assets/images/timing-overview-1024x611.png)
+![loading](/assets/images/2018/timing-overview-1024x611.png)
 
 PerformanceTiming предоставляет информацию о разных событиях которые возникают в момент загрузки страницы. Получить этот объект можно с помощью window.performance.timing свойства вашей страницы и IJavaScriptExecutor интерфейса и его метода ExecuteScript.
 

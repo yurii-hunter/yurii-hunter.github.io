@@ -2,7 +2,7 @@
 title: "XPath - примеры запросов"
 layout: post
 date: 2018-10-21 12:00
-image: /assets/images/xpath_featured.png
+image: /assets/images/2018/xpath_featured.png
 headerImage: false
 tag:
 - xpath

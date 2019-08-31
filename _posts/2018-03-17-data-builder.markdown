@@ -2,7 +2,7 @@
 title: "Передавать параметры в конструкторе – не самая хорошая идея"
 layout: post
 date: 2018-03-17 12:00
-image: /assets/images/builder_featured.jpg
+image: /assets/images/2018/builder_featured.jpg
 headerImage: false
 tag:
 - patterns

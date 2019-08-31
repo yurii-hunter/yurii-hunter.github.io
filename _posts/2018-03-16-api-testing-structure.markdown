@@ -1,8 +1,7 @@
 ---
 title: "REST API тестирование. Организация проекта"
 layout: post
-date: 2018-03-16 12:00
-image: /assets/images/api_testing_featured.jpg
+image: /assets/images/2018/api_testing_featured.jpg
 headerImage: false
 tag:
 - resharper

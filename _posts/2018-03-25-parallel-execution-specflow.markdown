@@ -2,7 +2,7 @@
 title: "Параллельному запуску тестов ReportPortal и SpecFlow быть"
 layout: post
 date: 2018-03-25 12:00
-image: /assets/images/rp_specflow_featured.jpg
+image: /assets/images/2018/rp_specflow_featured.jpg
 headerImage: false
 tag:
 - reportportal

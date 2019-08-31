@@ -6,7 +6,7 @@ tag:
 - findby
 - resharper
 - plugin
-image: /assets/images/banner_featured.png
+image: /assets/images/2018/banner_featured.png
 headerImage: true
 projects: true
 hidden: true # don't count this post in blog pagination

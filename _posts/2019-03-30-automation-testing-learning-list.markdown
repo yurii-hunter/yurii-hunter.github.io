@@ -2,7 +2,6 @@
 title: "Что нужно знать начинающему автоматизатору"
 layout: post
 date: 2019-03-30 12:00
-image: /assets/images/learning-list.jpg
 headerImage: false
 tag:
 - automation

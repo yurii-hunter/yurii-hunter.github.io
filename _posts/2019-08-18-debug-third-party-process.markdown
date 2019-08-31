@@ -1,8 +1,8 @@
 ---
-title: "How to attach to a process on startup and debug it?"
 layout: post
+title: "Как подключиться к процессу для отладки?"
 date: 2019-08-18 12:00
-image: /assets/images/attach-to-process.png
+image: /assets/images/2019/attach-to-process.png
 headerImage: false
 tag:
 - debug
@@ -10,27 +10,27 @@ tag:
 star: false
 category: blog
 author: yurii-hunter
-description: "How to attach to a process on startup and debug it?"
+description: "Как подключиться к процессу для отладки?"
 ---
 Поключиться к стороннему процессу, где исполняется ваша библиотека, можно в несколько способов. В зависимости от задачи и этапа, на котором нужно начать отладку, можно найти свой вариант
 
 ## Подключение к уже запущеному процессу
 Если сторонний процесс уже запущен и вы можете подключаться к нему в любой момент, то это однозначно подходящее решение. В меню Debug -> Attach to Process находим из списка свой процесс и нажимаем Atatch. Дальше, в месте где установлен breakpoint, процесс приостановит свое выполнение и вы можете продолжыть стандартный процесс отладки.
 
-![attach to process](/assets/images/attach-to-process.png)
+![attach to process](/assets/images/2019/attach-to-process.png)
 
 ## Запуск процесса из Visual Studio и подключение к нему
 Этот вариант вам подойдет, если нужно подсоедениться к процессу очень быстро или сразу на старте. Я пишу логер для vstest и мне нужно подключиться к процессу сразу же после запуска, чтобы успеть попасть на процесс инициализации логера. Процесс выглядит следующим образом: по умолчанию, если вы пишете библиотеку, то у вас нет возможности ее запустить. Чтобы выполнить код из библиотеки ей нужен какой-то хост - exe файл. Этот exe-файл подгружает библиотеку и вызывает какой-то код из нее. Если открыть свойства проекта с вашей библиотекой и перейти на вкладку Debug, то по умолчанию в поле Launch установлено значение Project. Меняем его на Executable. В поле Executable указываем путь к фисполняемому файлу, если нужно, то в поле Application Arguments вносим аргументы, с которыми должен запуститься процесс. Пометьте ваш проект, как проект по уполчанию Set as StartUp Project. Теперь, если нажать F5, то Visual Studio запусть процесс и срузу же подключится к нему в режиме отладки.
 
-![executable](/assets/images/executable.png)
+![executable](/assets/images/2019/executable.png)
 
 ## Запуск процесса из Visual Studio и подключение к дочерним процессам
 Третий подход - это расширение предыдущего. Во втором подходе есть одно ограничение - вы пожете отлаживать только основной процесс (тот самы который указали в поле Executable), если он порождает дочерние процессы и ваша библиотека загружается в них, то отладка не сработает. Заставить Visual Studio подключаться к дочерним процессам сожно с помощью плагина [Microsoft Child Process Debugging Power Tool](https://marketplace.visualstudio.com/items?itemName=vsdbgplat.MicrosoftChildProcessDebuggingPowerTool). После установки плагина в настройках установите галочку напротив пункта [Enable child process debugging](https://devblogs.microsoft.com/devops/introducing-the-child-process-debugging-power-tool/).
 
-![process debugging settings](/assets/images/process-debugging-settings.png)
+![process debugging settings](/assets/images/2019/process-debugging-settings.png)
 и сохраните настройки
 
-![Enable child process debugging](/assets/images/child-process-debugging.jpg). Теперь после запуска процесса, Visual Studio подключается так же к дочерним процессам и отлаживать их.
+![Enable child process debugging](/assets/images/2019/child-process-debugging.jpg). Теперь после запуска процесса, Visual Studio подключается так же к дочерним процессам и отлаживать их.
 
 _Ну и в заключение цитата:_
 > Программисты отлаживают, а филологи откладывают. Кроме того, программисты понимают, в чем тут шутка, а филологи только думают, что понимают.

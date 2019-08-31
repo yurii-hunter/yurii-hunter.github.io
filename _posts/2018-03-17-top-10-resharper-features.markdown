@@ -2,7 +2,7 @@
 title: "Resharper - горячие клавиши"
 layout: post
 date: 2018-03-17 12:00
-image: /assets/images/resharper_featured.jpg
+image: /assets/images/2018/resharper_featured.jpg
 headerImage: false
 tag:
 - resharper

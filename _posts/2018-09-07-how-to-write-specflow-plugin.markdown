@@ -2,7 +2,7 @@
 title: "Как писать плагины к SpecFlow. Проект Macro.SpecFlow"
 layout: post
 date: 2018-09-07 12:00
-image: /assets/images/Macro.SpecFlow_featured.jpg
+image: /assets/images/2018/Macro.SpecFlow_featured.jpg
 headerImage: false
 tag:
 - specflow

@@ -1,4 +1,4 @@
-.DS_Store
 _site
+.DS_Store
+*.swp
 .sass-cache
-Gemfile.lock
