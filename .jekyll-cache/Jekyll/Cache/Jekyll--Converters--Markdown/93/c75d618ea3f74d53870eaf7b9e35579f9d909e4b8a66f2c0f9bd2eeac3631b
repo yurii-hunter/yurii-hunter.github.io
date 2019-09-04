@@ -1,0 +1,10 @@
+I"c<p>Столкнулся с проблемой, что при запуске xUnit тестов они зависают. Причем проблема воспроизводилась не на всех машинах и не всегда. Чаще всего если запускать тесты в режиме Run All. Или если запускать тесты с помощью dotnet test команды.</p>
+
+<p><a href="https://github.com/xunit/xunit/issues/864">Нагуглил</a>, что проблема связанна с deadlock которые возникают если использовать <code class="highlighter-rouge">.Wait()</code> функцию.</p>
+
+<p>Самое простое решение проблемы - выключить параллельный запуск тестов. Добавьте в любом файле проекта (обычно это Assembly.cs) <code class="highlighter-rouge">[assembly: CollectionBehavior(DisableTestParallelization = true)</code></p>
+
+<p>Сами ребята из xUnit - очень специфичные и говорят, что исправлять ничего не будут и такое поведение As Designed. Думаю это мантра, с которой они начинают свой день.</p>
+
+<p><img src="/assets/images/2019/xunit-position.png" alt="" /></p>
+:ET

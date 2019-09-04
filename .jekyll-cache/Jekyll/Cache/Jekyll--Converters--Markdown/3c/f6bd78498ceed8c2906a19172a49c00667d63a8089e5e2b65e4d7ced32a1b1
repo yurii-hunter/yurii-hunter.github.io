@@ -1,0 +1,171 @@
+I"FX<h2 id="постановка-задачи">Постановка задачи</h2>
+<p>У себя на проекте мы использем SpecFlow для написания тестов и часто возникала необходимость генерировать уникальные данные для каждого теста. Ну, например, имя товара. Если имя не будет уникальным, то вероятно ваше приложение не даст возможность добавить новую сущность, а ели и даст, то как потом понять, что сейчас работаем с новой, а не той, с прошлого запуска.</p>
+
+<p>В общем захотелось писать в сценариях какое-то ключевое слово и чтоб потом оно заменялось на лету другим значением. Я называю это - макросы.
+В таком случае, сценарий вида:</p>
+
+<div class="language-gherkin highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nf">When </span>I add an item 'Phone-_random_'
+<span class="nf">Then </span>the item 'Phone-_random_' should be present in the list
+</code></pre></div></div>
+
+<p>должен замениться на:</p>
+
+<div class="language-gherkin highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nf">When </span>I add an item 'Phone-903456'
+<span class="nf">Then </span>the item 'Phone-903456' should be present in the list
+</code></pre></div></div>
+
+<p>Самый простой и быстрый вариант - использовать Transformation. Мы даже жили некоторое время с таким решением, но оно не позволяет конвертировать в string и в object, входящим параметром должен быть любой другой тип. Некоторое время мы жили с MacroString типом, который являлся, просто, оберткой над string. Такой вариант не самый удобный и часто вызывал вопросы “Зачем иметь такой класс?”. Так что решил я написать плагин, готорый бы препроцесил сценарии и заменял макросы на результат выполнения функции.</p>
+
+<h2 id="регистрация-плагина">Регистрация плагина</h2>
+<p>Есть несколько правил, которым нужно следовать, чтобы SpecFlow подхватывал ваш плагин:</p>
+
+<ul>
+  <li>Имя сборки должно заканчиваться на <em>.SpecFlowPlugin</em></li>
+  <li>Должен быть добавлен атрибут <em>[assembly:RuntimePlugin(typeof(Plugin))]</em></li>
+  <li>Должен быть класс, который реализует интерфейс <em>IRuntimePlugin</em></li>
+  <li>В App.config’e тестового проекта в секции <em>plugins</em> нужно добавить наш плагин <code class="highlighter-rouge">&lt;add name="Macro" type="Runtime" /&gt;</code></li>
+</ul>
+
+<div class="language-csharp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">using</span> <span class="nn">Macro.SpecFlowPlugin</span><span class="p">;</span>
+<span class="k">using</span> <span class="nn">Macro.SpecFlowPlugin.SpecFlow</span><span class="p">;</span>
+<span class="k">using</span> <span class="nn">TechTalk.SpecFlow.Infrastructure</span><span class="p">;</span>
+<span class="k">using</span> <span class="nn">TechTalk.SpecFlow.Plugins</span><span class="p">;</span>
+
+<span class="p">[</span><span class="n">assembly</span><span class="p">:</span> <span class="nf">RuntimePlugin</span><span class="p">(</span><span class="k">typeof</span><span class="p">(</span><span class="n">Plugin</span><span class="p">))]</span>
+
+<span class="k">namespace</span> <span class="nn">Macro.SpecFlowPlugin</span>
+<span class="p">{</span>
+    <span class="k">public</span> <span class="k">class</span> <span class="nc">Plugin</span> <span class="p">:</span> <span class="n">IRuntimePlugin</span>
+    <span class="p">{</span>
+        <span class="k">public</span> <span class="k">void</span> <span class="nf">Initialize</span><span class="p">(</span><span class="n">RuntimePluginEvents</span> <span class="n">runtimePluginEvents</span><span class="p">,</span> <span class="n">RuntimePluginParameters</span> <span class="n">runtimePluginParameters</span><span class="p">)</span>
+        <span class="p">{</span>
+            <span class="n">runtimePluginEvents</span><span class="p">.</span><span class="n">CustomizeGlobalDependencies</span> <span class="p">+=</span> <span class="n">RuntimePluginEvents_CustomizeGlobalDependencies</span><span class="p">;</span>
+            <span class="n">runtimePluginEvents</span><span class="p">.</span><span class="n">CustomizeTestThreadDependencies</span> <span class="p">+=</span> <span class="n">RuntimePluginEvents_CustomizeTestThreadDependencies</span><span class="p">;</span>
+        <span class="p">}</span>
+
+        <span class="k">private</span> <span class="k">void</span> <span class="nf">RuntimePluginEvents_CustomizeGlobalDependencies</span><span class="p">(</span><span class="kt">object</span> <span class="n">sender</span><span class="p">,</span> <span class="n">CustomizeGlobalDependenciesEventArgs</span> <span class="n">e</span><span class="p">)</span>
+        <span class="p">{</span>
+            <span class="n">e</span><span class="p">.</span><span class="n">ObjectContainer</span><span class="p">.</span><span class="n">RegisterTypeAs</span><span class="p">&lt;</span><span class="n">MacrosLoader</span><span class="p">,</span> <span class="n">IMacrosLoader</span><span class="p">&gt;();</span>
+        <span class="p">}</span>
+
+        <span class="k">private</span> <span class="k">void</span> <span class="nf">RuntimePluginEvents_CustomizeTestThreadDependencies</span><span class="p">(</span><span class="kt">object</span> <span class="n">sender</span><span class="p">,</span> <span class="n">CustomizeTestThreadDependenciesEventArgs</span> <span class="n">e</span><span class="p">)</span>
+        <span class="p">{</span>
+            <span class="n">e</span><span class="p">.</span><span class="n">ObjectContainer</span><span class="p">.</span><span class="n">RegisterTypeAs</span><span class="p">&lt;</span><span class="n">MacrosTestExecutionEngine</span><span class="p">,</span> <span class="n">ITestExecutionEngine</span><span class="p">&gt;();</span>
+            <span class="n">e</span><span class="p">.</span><span class="n">ObjectContainer</span><span class="p">.</span><span class="nf">RegisterFactoryAs</span><span class="p">(()</span> <span class="p">=&gt;</span>
+            <span class="p">{</span>
+                <span class="n">IMacrosLoader</span> <span class="n">loader</span> <span class="p">=</span> <span class="n">e</span><span class="p">.</span><span class="n">ObjectContainer</span><span class="p">.</span><span class="n">Resolve</span><span class="p">&lt;</span><span class="n">IMacrosLoader</span><span class="p">&gt;();</span>
+                <span class="n">IProcessor</span> <span class="n">processor</span> <span class="p">=</span> <span class="k">new</span> <span class="nf">Processor</span><span class="p">();</span>
+                <span class="n">processor</span><span class="p">.</span><span class="n">MacroCollection</span> <span class="p">=</span> <span class="n">loader</span><span class="p">.</span><span class="nf">LoadAll</span><span class="p">();</span>
+                <span class="k">return</span> <span class="n">processor</span><span class="p">;</span>
+            <span class="p">});</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p><strong>CustomizeGlobalDependencies</strong> - событие, которое возникает единажды, при загрузке сборки. В этом же событии мы регистрируем ITestExecutionEngine, который будет обрабатывать текст сценария и тут же мы подгружаем все сборки с макросами.</p>
+
+<p><strong>CustomizeTestThreadDependencies</strong> - событие, которое возникает для каждого потока теста. В этом потоке мы будем хранить все макросы чтобы генерировать их каждый раз и не терять значения.</p>
+
+<div class="language-xml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">&lt;?xml version="1.0" encoding="utf-8"?&gt;</span>
+<span class="nt">&lt;configuration&gt;</span>
+  <span class="nt">&lt;configSections&gt;</span>
+    <span class="nt">&lt;section</span> <span class="na">name=</span><span class="s">"specFlow"</span> <span class="na">type=</span><span class="s">"TechTalk.SpecFlow.Configuration.ConfigurationSectionHandler, TechTalk.SpecFlow"</span> <span class="nt">/&gt;</span>
+  <span class="nt">&lt;/configSections&gt;</span>
+  <span class="nt">&lt;specFlow&gt;</span>
+    <span class="nt">&lt;trace</span> <span class="na">traceSuccessfulSteps=</span><span class="s">"false"</span> <span class="nt">/&gt;</span>
+    <span class="nt">&lt;unitTestProvider</span> <span class="na">name=</span><span class="s">"NUnit"</span> <span class="nt">/&gt;</span>
+    <span class="nt">&lt;plugins&gt;</span>
+      <span class="nt">&lt;add</span> <span class="na">name=</span><span class="s">"Macro"</span> <span class="na">type=</span><span class="s">"Runtime"</span> <span class="nt">/&gt;</span>
+    <span class="nt">&lt;/plugins&gt;</span>
+  <span class="nt">&lt;/specFlow&gt;</span>
+<span class="nt">&lt;/configuration&gt;</span>
+</code></pre></div></div>
+
+<h2 id="замена">Замена</h2>
+<p>С заменой все достаточно просто: нужно просто создать класс с методом, который будет заменять все слова, которые подпадают под регулярное выражение, на значение функции. Кроме того, значение должно храниться в классе и использоваться при следующем вызове, чтоб все замены одного выражения были эквивалентны.</p>
+
+<div class="language-csharp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">using</span> <span class="nn">System.Collections.Generic</span><span class="p">;</span>
+<span class="k">using</span> <span class="nn">System.Text.RegularExpressions</span><span class="p">;</span>
+
+<span class="k">namespace</span> <span class="nn">Macro.SpecFlowPlugin</span>
+<span class="p">{</span>
+    <span class="k">internal</span> <span class="k">interface</span> <span class="nc">IProcessor</span>
+    <span class="p">{</span>
+        <span class="kt">string</span> <span class="nf">Process</span><span class="p">(</span><span class="kt">string</span> <span class="n">text</span><span class="p">);</span>
+        <span class="n">Dictionary</span><span class="p">&lt;</span><span class="kt">string</span><span class="p">,</span> <span class="n">IMacro</span><span class="p">&gt;</span> <span class="n">MacroCollection</span> <span class="p">{</span> <span class="k">get</span><span class="p">;</span> <span class="k">set</span><span class="p">;</span> <span class="p">}</span>
+    <span class="p">}</span>
+
+    <span class="k">internal</span> <span class="k">class</span> <span class="nc">Processor</span> <span class="p">:</span> <span class="n">IProcessor</span>
+    <span class="p">{</span>
+        <span class="k">public</span> <span class="n">Dictionary</span><span class="p">&lt;</span><span class="kt">string</span><span class="p">,</span> <span class="n">IMacro</span><span class="p">&gt;</span> <span class="n">MacroCollection</span> <span class="p">{</span> <span class="k">get</span><span class="p">;</span> <span class="k">set</span><span class="p">;</span> <span class="p">}</span>
+        <span class="k">private</span> <span class="k">readonly</span> <span class="n">Dictionary</span><span class="p">&lt;</span><span class="kt">string</span><span class="p">,</span> <span class="kt">string</span><span class="p">&gt;</span> <span class="n">_values</span><span class="p">;</span>
+
+        <span class="k">public</span> <span class="nf">Processor</span><span class="p">()</span>
+        <span class="p">{</span>
+            <span class="n">MacroCollection</span> <span class="p">=</span> <span class="k">new</span> <span class="n">Dictionary</span><span class="p">&lt;</span><span class="kt">string</span><span class="p">,</span> <span class="n">IMacro</span><span class="p">&gt;();</span>
+            <span class="n">_values</span> <span class="p">=</span> <span class="k">new</span> <span class="n">Dictionary</span><span class="p">&lt;</span><span class="kt">string</span><span class="p">,</span> <span class="kt">string</span><span class="p">&gt;();</span>
+        <span class="p">}</span>
+
+        <span class="k">public</span> <span class="kt">string</span> <span class="nf">Process</span><span class="p">(</span><span class="kt">string</span> <span class="n">text</span><span class="p">)</span>
+        <span class="p">{</span>
+            <span class="k">foreach</span> <span class="p">(</span><span class="kt">var</span> <span class="n">macro</span> <span class="k">in</span> <span class="n">MacroCollection</span><span class="p">)</span>
+            <span class="p">{</span>
+                <span class="kt">var</span> <span class="n">matches</span> <span class="p">=</span> <span class="n">Regex</span><span class="p">.</span><span class="nf">Matches</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="n">macro</span><span class="p">.</span><span class="n">Key</span><span class="p">);</span>
+                <span class="k">foreach</span> <span class="p">(</span><span class="n">Match</span> <span class="n">match</span> <span class="k">in</span> <span class="n">matches</span><span class="p">)</span>
+                <span class="p">{</span>
+                    <span class="k">if</span> <span class="p">(!</span><span class="n">match</span><span class="p">.</span><span class="n">Success</span><span class="p">)</span> <span class="k">continue</span><span class="p">;</span>
+                    <span class="k">if</span> <span class="p">(!</span><span class="n">_values</span><span class="p">.</span><span class="nf">ContainsKey</span><span class="p">(</span><span class="n">match</span><span class="p">.</span><span class="n">Value</span><span class="p">))</span>
+                    <span class="p">{</span>
+                        <span class="n">_values</span><span class="p">.</span><span class="nf">Add</span><span class="p">(</span><span class="n">match</span><span class="p">.</span><span class="n">Value</span><span class="p">,</span> <span class="n">macro</span><span class="p">.</span><span class="n">Value</span><span class="p">.</span><span class="nf">Process</span><span class="p">(</span><span class="n">match</span><span class="p">));</span>
+                    <span class="p">}</span>
+                    <span class="n">text</span> <span class="p">=</span> <span class="n">text</span><span class="p">.</span><span class="nf">Replace</span><span class="p">(</span><span class="n">match</span><span class="p">.</span><span class="n">Value</span><span class="p">,</span> <span class="n">_values</span><span class="p">[</span><span class="n">match</span><span class="p">.</span><span class="n">Value</span><span class="p">]);</span>
+                <span class="p">}</span>
+            <span class="p">}</span>
+            <span class="k">return</span> <span class="n">text</span><span class="p">;</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<h2 id="подгрузка-классов">Подгрузка классов</h2>
+<p>Штука в том, что SpecFlow - это плагин для VisualStudio, для которого я пишу плагин Macro.SpecFlow, для которого можно писть плагины… Так вот последние могут включены к любую сборку, эту сборку нужно указать в конфигурации и Macro.SpecFlow подгрузит все макросы.</p>
+
+<div class="language-csharp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">internal</span> <span class="k">class</span> <span class="nc">MacrosLoader</span> <span class="p">:</span> <span class="n">IMacrosLoader</span>
+<span class="p">{</span>
+    <span class="k">private</span> <span class="k">readonly</span> <span class="kt">string</span> <span class="n">_directory</span> <span class="p">=</span> <span class="n">Path</span><span class="p">.</span><span class="nf">GetDirectoryName</span><span class="p">(</span><span class="k">new</span> <span class="nf">Uri</span><span class="p">(</span><span class="k">typeof</span><span class="p">(</span><span class="n">Configuration</span><span class="p">).</span><span class="n">Assembly</span><span class="p">.</span><span class="n">CodeBase</span><span class="p">).</span><span class="n">LocalPath</span><span class="p">);</span>
+    <span class="k">public</span> <span class="n">Dictionary</span><span class="p">&lt;</span><span class="kt">string</span><span class="p">,</span> <span class="n">IMacro</span><span class="p">&gt;</span> <span class="nf">LoadAll</span><span class="p">()</span>
+    <span class="p">{</span>
+        <span class="kt">var</span> <span class="n">list</span> <span class="p">=</span> <span class="k">new</span> <span class="n">Dictionary</span><span class="p">&lt;</span><span class="kt">string</span><span class="p">,</span> <span class="n">IMacro</span><span class="p">&gt;();</span>
+        <span class="k">foreach</span> <span class="p">(</span><span class="kt">var</span> <span class="n">assebly</span> <span class="k">in</span> <span class="n">Configuration</span><span class="p">.</span><span class="n">MacroSpecFlow</span><span class="p">.</span><span class="n">Assemblies</span> <span class="k">as</span> <span class="n">IEnumerable</span><span class="p">&lt;</span><span class="n">AssemblyElement</span><span class="p">&gt;)</span>
+        <span class="p">{</span>
+            <span class="kt">var</span> <span class="n">assembly</span> <span class="p">=</span> <span class="n">Assembly</span><span class="p">.</span><span class="nf">LoadFile</span><span class="p">(</span><span class="nf">GetFullPath</span><span class="p">(</span><span class="n">assebly</span><span class="p">.</span><span class="n">Name</span><span class="p">));</span>
+            <span class="k">foreach</span> <span class="p">(</span><span class="kt">var</span> <span class="n">type</span> <span class="k">in</span> <span class="n">assembly</span><span class="p">.</span><span class="nf">GetTypes</span><span class="p">())</span>
+            <span class="p">{</span>
+                <span class="k">if</span> <span class="p">(</span><span class="n">type</span><span class="p">.</span><span class="n">IsClass</span> 
+                    <span class="p">&amp;&amp;</span> <span class="k">typeof</span><span class="p">(</span><span class="n">IMacro</span><span class="p">).</span><span class="nf">IsAssignableFrom</span><span class="p">(</span><span class="n">type</span><span class="p">)</span> 
+                    <span class="p">&amp;&amp;</span> <span class="n">type</span><span class="p">.</span><span class="n">HasCustomAttribute</span><span class="p">&lt;</span><span class="n">PatternAttribute</span><span class="p">&gt;())</span>
+                <span class="p">{</span>
+                    <span class="kt">var</span> <span class="k">value</span> <span class="p">=</span> <span class="n">type</span><span class="p">.</span><span class="n">GetCustomAttribute</span><span class="p">&lt;</span><span class="n">PatternAttribute</span><span class="p">&gt;().</span><span class="n">Value</span><span class="p">;</span>
+                    <span class="n">list</span><span class="p">[</span><span class="k">value</span><span class="p">]</span> <span class="p">=</span> <span class="n">Activator</span><span class="p">.</span><span class="nf">CreateInstance</span><span class="p">(</span><span class="n">type</span><span class="p">)</span> <span class="k">as</span> <span class="n">IMacro</span><span class="p">;</span>
+                <span class="p">}</span>
+            <span class="p">}</span>
+        <span class="p">}</span>
+
+        <span class="k">return</span> <span class="n">list</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="k">private</span> <span class="kt">string</span> <span class="nf">GetFullPath</span><span class="p">(</span><span class="kt">string</span> <span class="n">name</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="k">return</span> <span class="n">Path</span><span class="p">.</span><span class="nf">Combine</span><span class="p">(</span><span class="n">_directory</span><span class="p">,</span> <span class="n">name</span><span class="p">);</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<h2 id="nuget-и-публикация-плагина">Nuget и публикация плагина</h2>
+<p>Последний шаг - это публикация плагина. Для этого нужно создать nuget пакет и загрузить его на nuget.org</p>
+
+<p>Для начала нужно создать nuspec файл и заполнить все соответствующия поля. У плагина есть зависимость на SpecFlow.CustomPlugin, поэтому нужно добавить dependency секцию и указать id пакета.</p>
+
+<p>Код можно посмотреть на моем профиле в <a href="https://github.com/yurii-hunter/macro-specflow">GitHub</a></p>
+:ET

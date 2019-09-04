@@ -8,8 +8,7 @@ star: false
 category: blog
 author: yurii-hunter
 description: "Мои GTD правила"
-featured_image_thumbnail: /assets/images/2019/getting-things-done-with-todoist.png
-featured_image: /assets/images/2019/getting-things-done-with-todoist.png
+image: /assets/images/2019/getting-things-done-with-todoist.png
 ---
 ### Записывай
 Одно из правил GTD - записывай. Куча идей крутится в голове. Они появляются, ты о них думаешь, потом забываешь. Потом эти идеи снова появляются, ты снова думаешь. Лучший способ привести их в порядок - записать. Я записываю в todoist. Записываю от начала до конца, с подробностями и нюансами. Задача “Написать заметку” - не работает. С этой записи должен получиться проект. С задачами и приоритетами. А может ничего и не получится, но обдумывать  это уже не будешь.

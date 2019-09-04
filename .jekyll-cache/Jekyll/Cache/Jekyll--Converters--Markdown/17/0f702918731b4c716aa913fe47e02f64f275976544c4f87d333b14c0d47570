@@ -1,0 +1,61 @@
+I".<p>Заполнение объекта может быть реализовано в несколько способов. Один из них - это использование конструкторов или Helper методов. Но проблема в том, что таких методов может быть много, а также количество и тип входных параметров может меняться, что вызывает трудности при чтении.</p>
+<div class="language-csharp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// Можно использовать конструкторы</span>
+<span class="n">Event</span> <span class="k">event</span> <span class="p">=</span> <span class="k">new</span> <span class="nf">Event</span><span class="p">(</span><span class="n">EventType</span><span class="p">.</span><span class="n">Conference</span><span class="p">);</span>
+
+<span class="c1">// Использование Helper методов, которые немного упрощают чтение, но не всегда нуждаются во всех параметрах</span>
+<span class="n">Event</span> <span class="n">bigConference</span> <span class="p">=</span> <span class="nf">Conference</span><span class="p">(</span><span class="s">"Global AQA meetup"</span><span class="p">,</span> <span class="m">500</span><span class="p">,</span> <span class="n">Type</span><span class="p">.</span><span class="n">Public</span><span class="p">);</span>
+<span class="n">Event</span> <span class="n">dailyMeeting</span> <span class="p">=</span> <span class="nf">Meeting</span><span class="p">(</span><span class="s">"Daily standup"</span><span class="p">,</span> <span class="m">10</span><span class="p">,</span> <span class="n">Regular</span><span class="p">);</span>
+<span class="n">Event</span> <span class="n">discussion</span> <span class="p">=</span> <span class="nf">Meeting</span><span class="p">(</span><span class="s">"Strategy"</span><span class="p">,</span> <span class="m">3</span><span class="p">,</span> <span class="k">null</span><span class="p">);</span>
+
+<span class="c1">// Использование боллее специфических методов</span>
+<span class="n">Event</span> <span class="n">syncup</span> <span class="p">=</span> <span class="nf">WeeklyMeeting</span><span class="p">(</span><span class="s">"QA syncup"</span><span class="p">,</span> <span class="m">5</span><span class="p">);</span>
+</code></pre></div></div>
+<p>Решением является использование Builder классов, которые возвращают объект этого же класса с частично заполненными данными.</p>
+<div class="language-csharp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">Event</span> <span class="n">bigConference</span> <span class="p">=</span> <span class="n">EventBuilder</span>
+                            <span class="p">.</span><span class="nf">Conference</span><span class="p">()</span>
+                            <span class="p">.</span><span class="nf">WithName</span><span class="p">(</span><span class="s">"Global AQA meetup"</span><span class="p">)</span>
+                            <span class="p">.</span><span class="nf">WithType</span><span class="p">(</span><span class="n">Type</span><span class="p">.</span><span class="n">Public</span><span class="p">)</span>
+                            <span class="p">.</span><span class="nf">WithCapacity</span><span class="p">(</span><span class="m">500</span><span class="p">)</span>
+                            <span class="p">.</span><span class="nf">Build</span><span class="p">();</span>
+</code></pre></div></div>
+<p>Реализация такого класса будет выглядеть так</p>
+<div class="language-csharp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">class</span> <span class="nc">EventBuilder</span>
+<span class="p">{</span>
+    <span class="n">Event</span> <span class="k">event</span><span class="p">;</span>
+
+    <span class="k">private</span> <span class="nf">EventBuilder</span><span class="p">(</span><span class="n">EventType</span> <span class="n">type</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="k">event</span> <span class="p">=</span> <span class="k">new</span> <span class="nf">Event</span><span class="p">(</span><span class="n">type</span><span class="p">);</span>
+    <span class="p">}</span>
+
+    <span class="k">public</span> <span class="k">static</span> <span class="n">EventBuilder</span> <span class="nf">Conference</span><span class="p">()</span>
+    <span class="p">{</span>
+        <span class="k">return</span> <span class="k">new</span> <span class="nf">EventBuilder</span><span class="p">(</span><span class="n">EventType</span><span class="p">.</span><span class="n">Conference</span><span class="p">);</span>
+    <span class="p">}</span>
+
+    <span class="k">public</span> <span class="n">EventBuilder</span> <span class="nf">WithName</span><span class="p">(</span><span class="kt">string</span> <span class="n">name</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="k">event</span><span class="p">.</span><span class="n">Name</span> <span class="p">=</span> <span class="n">name</span><span class="p">;</span>
+        <span class="k">return</span> <span class="k">this</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="k">public</span> <span class="n">EventBuilder</span> <span class="nf">WithAccess</span><span class="p">(</span><span class="n">Access</span> <span class="n">access</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="k">event</span><span class="p">.</span><span class="n">Access</span> <span class="p">=</span> <span class="n">access</span><span class="p">;</span>
+        <span class="k">return</span> <span class="k">this</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="k">public</span> <span class="n">EventBuilder</span> <span class="nf">WithCapacity</span><span class="p">(</span><span class="kt">int</span> <span class="n">capacity</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="k">event</span><span class="p">.</span><span class="n">Capacity</span> <span class="p">=</span> <span class="n">capacity</span><span class="p">;</span>
+        <span class="k">return</span> <span class="k">this</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="k">public</span> <span class="n">Event</span> <span class="nf">Build</span><span class="p">()</span>
+    <span class="p">{</span>
+        <span class="k">return</span> <span class="k">event</span><span class="p">;</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+<p>Также в методе Build можно выполнять преобразования или проверку обязательных полей, если в этом есть необходимость.</p>
+:ET

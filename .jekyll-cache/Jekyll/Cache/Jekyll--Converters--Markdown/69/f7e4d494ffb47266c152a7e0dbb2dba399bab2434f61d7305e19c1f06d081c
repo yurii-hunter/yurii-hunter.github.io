@@ -1,0 +1,130 @@
+I"�=<p>Наверное каждый, кто занимался UI тестированием приложений, слышал о Page Object и Page Factory патернах проектирования. И, уж точно, каждый из них знает в чем их преимущество. Но когда дело доходит до API, то тут начинается импровизация. Кто как придумал, кто как смог… кто-то формирует запросы в файлах, кто-то в классас, а кто-то и в тест методах не брезгует. Ниже я опишу вам как решал этот вопрос я у себя на проекте.</p>
+
+<h2 id="а-давайте-делать-как-в-page-object-pattern">А давайте делать как в Page Object pattern</h2>
+<p>Ну правда, давайте разделим наши запросы на Resources и Actions по аналогии с Pages и Steps. В Resouces будут находиться статические данные к endpoint’ам, а в Actions мы добавим динамические данные и выполним сам запрос. Статические данные будем хранить в атрибутах Request и Format. Request содержит метод запроса и url к endpoint, а Format определяет формат данных которые будут отправлены или получены. Опишем условный Users ресурс нашего приложения со стандартным набором CRUD операций.</p>
+<div class="language-csharp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">internal</span> <span class="k">class</span> <span class="nc">UserResource</span>
+<span class="p">{</span>
+    <span class="p">[</span><span class="nf">Request</span><span class="p">(</span><span class="n">Method</span><span class="p">.</span><span class="n">GET</span><span class="p">,</span> <span class="s">"users"</span><span class="p">)]</span>
+    <span class="k">public</span> <span class="n">Endpoint</span> <span class="n">GetAll</span> <span class="p">{</span> <span class="k">get</span><span class="p">;</span> <span class="k">set</span><span class="p">;</span> <span class="p">}</span>
+
+    <span class="p">[</span><span class="nf">Request</span><span class="p">(</span><span class="n">Method</span><span class="p">.</span><span class="n">GET</span><span class="p">,</span> <span class="s">"users/{userId}"</span><span class="p">)]</span>
+    <span class="k">public</span> <span class="n">Endpoint</span> <span class="n">Get</span> <span class="p">{</span> <span class="k">get</span><span class="p">;</span> <span class="k">set</span><span class="p">;</span> <span class="p">}</span>
+
+    <span class="p">[</span><span class="nf">Request</span><span class="p">(</span><span class="n">Method</span><span class="p">.</span><span class="n">POST</span><span class="p">,</span> <span class="s">"users"</span><span class="p">)]</span>
+    <span class="p">[</span><span class="nf">Format</span><span class="p">(</span><span class="n">DataFormat</span><span class="p">.</span><span class="n">Json</span><span class="p">)]</span>
+    <span class="k">public</span> <span class="n">Endpoint</span> <span class="n">Add</span> <span class="p">{</span> <span class="k">get</span><span class="p">;</span> <span class="k">set</span><span class="p">;</span> <span class="p">}</span>
+
+    <span class="p">[</span><span class="nf">Request</span><span class="p">(</span><span class="n">Method</span><span class="p">.</span><span class="n">PUT</span><span class="p">,</span> <span class="s">"users/{userId}"</span><span class="p">)]</span>
+    <span class="p">[</span><span class="nf">Format</span><span class="p">(</span><span class="n">DataFormat</span><span class="p">.</span><span class="n">Json</span><span class="p">)]</span>
+    <span class="k">public</span> <span class="n">Endpoint</span> <span class="n">Update</span> <span class="p">{</span> <span class="k">get</span><span class="p">;</span> <span class="k">set</span><span class="p">;</span> <span class="p">}</span>
+
+    <span class="p">[</span><span class="nf">Request</span><span class="p">(</span><span class="n">Method</span><span class="p">.</span><span class="n">DELETE</span><span class="p">,</span> <span class="s">"users/{userId}"</span><span class="p">)]</span>
+    <span class="k">public</span> <span class="n">Endpoint</span> <span class="n">Delete</span> <span class="p">{</span> <span class="k">get</span><span class="p">;</span> <span class="k">set</span><span class="p">;</span> <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+<p>А теперь посмотрим как выглядит Actions для UsersResource</p>
+<div class="language-csharp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">public</span> <span class="k">class</span> <span class="nc">UsersActions</span>
+<span class="p">{</span>
+    <span class="k">private</span> <span class="n">UsersResource</span> <span class="n">UsersResource</span> <span class="p">=&gt;</span> <span class="n">Resource</span><span class="p">.</span><span class="n">Get</span><span class="p">&lt;</span><span class="n">UsersResource</span><span class="p">&gt;();</span>
+
+    <span class="k">public</span> <span class="n">IEnumerable</span><span class="p">&lt;</span><span class="n">User</span><span class="p">&gt;</span> <span class="nf">GetUsers</span><span class="p">()</span>
+    <span class="p">{</span>
+        <span class="k">return</span> <span class="n">UsersResource</span>
+            <span class="p">.</span><span class="n">GetAll</span>
+            <span class="p">.</span><span class="n">Execute</span><span class="p">&lt;</span><span class="n">IEnumerable</span><span class="p">&lt;</span><span class="n">User</span><span class="p">&gt;&gt;();</span>
+    <span class="p">}</span>
+
+    <span class="k">public</span> <span class="n">User</span> <span class="nf">GetUserById</span><span class="p">(</span><span class="kt">long</span> <span class="n">userId</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="k">return</span> <span class="n">UsersResource</span>
+            <span class="p">.</span><span class="n">Get</span>
+            <span class="p">.</span><span class="nf">WithUrlSegment</span><span class="p">(</span><span class="s">"userId"</span><span class="p">,</span> <span class="n">userId</span><span class="p">)</span>
+            <span class="p">.</span><span class="n">Execute</span><span class="p">&lt;</span><span class="n">User</span><span class="p">&gt;();</span>
+    <span class="p">}</span>
+
+    <span class="k">public</span> <span class="k">void</span> <span class="nf">AddUser</span><span class="p">(</span><span class="n">User</span> <span class="n">user</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="n">UsersResource</span>
+            <span class="p">.</span><span class="n">Add</span>
+            <span class="p">.</span><span class="nf">WithData</span><span class="p">(</span><span class="n">user</span><span class="p">)</span>
+            <span class="p">.</span><span class="nf">Execute</span><span class="p">();</span>
+    <span class="p">}</span>
+
+    <span class="k">public</span> <span class="k">void</span> <span class="nf">UpdateUser</span><span class="p">(</span><span class="kt">long</span> <span class="n">userId</span><span class="p">,</span> <span class="n">User</span> <span class="n">user</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="n">UsersResource</span>
+            <span class="p">.</span><span class="n">Update</span>
+            <span class="p">.</span><span class="nf">WithUrlSegment</span><span class="p">(</span><span class="s">"userId"</span><span class="p">,</span> <span class="n">userId</span><span class="p">)</span>
+            <span class="p">.</span><span class="nf">WithData</span><span class="p">(</span><span class="n">user</span><span class="p">)</span>
+            <span class="p">.</span><span class="nf">Execute</span><span class="p">();</span>
+    <span class="p">}</span>
+
+    <span class="k">public</span> <span class="k">void</span> <span class="nf">DeleteUser</span><span class="p">(</span><span class="kt">long</span> <span class="n">userId</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="n">UsersResource</span>
+            <span class="p">.</span><span class="n">Delete</span>
+            <span class="p">.</span><span class="nf">WithUrlSegment</span><span class="p">(</span><span class="s">"userId"</span><span class="p">,</span> <span class="n">userId</span><span class="p">)</span>
+            <span class="p">.</span><span class="nf">Execute</span><span class="p">();</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+<p>Выглядит просто и лаконично, правда? Но пока не понятно, что за тип такой Endpoint. Endpoint - это класс билдер зпроса. У себя на проекте я использую RestSharp, так что Endpoint - это обертка над RestRequest, но всегда можно использовать что-то другое.</p>
+<div class="language-csharp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">public</span> <span class="k">class</span> <span class="nc">Endpoint</span>
+<span class="p">{</span>
+    <span class="k">private</span> <span class="k">readonly</span> <span class="n">RestRequest</span> <span class="n">_request</span> <span class="p">=</span> <span class="k">new</span> <span class="nf">RestRequest</span><span class="p">();</span>
+    <span class="k">private</span> <span class="k">readonly</span> <span class="n">RestClient</span> <span class="n">_restClient</span><span class="p">;</span>
+    <span class="k">public</span> <span class="nf">Endpoint</span><span class="p">(</span><span class="n">RestClient</span> <span class="n">client</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="n">_restClient</span> <span class="p">=</span> <span class="n">client</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="k">public</span> <span class="n">Endpoint</span> <span class="nf">WithMethod</span><span class="p">(</span><span class="n">Method</span> <span class="n">method</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="n">_request</span><span class="p">.</span><span class="n">Method</span> <span class="p">=</span> <span class="n">method</span><span class="p">.</span><span class="nf">Convert</span><span class="p">();</span>
+        <span class="k">return</span> <span class="k">this</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="k">public</span> <span class="n">Endpoint</span> <span class="nf">WithResource</span><span class="p">(</span><span class="kt">string</span> <span class="n">resource</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="n">_request</span><span class="p">.</span><span class="n">Resource</span> <span class="p">=</span> <span class="n">resource</span><span class="p">;</span>
+        <span class="k">return</span> <span class="k">this</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="k">public</span> <span class="n">Endpoint</span> <span class="nf">WithDataFormat</span><span class="p">(</span><span class="n">DataFormat</span> <span class="n">format</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="n">_request</span><span class="p">.</span><span class="n">RequestFormat</span> <span class="p">=</span> <span class="n">format</span><span class="p">.</span><span class="nf">Convert</span><span class="p">();</span>
+        <span class="k">return</span> <span class="k">this</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="k">public</span> <span class="n">Endpoint</span> <span class="nf">WithUrlSegment</span><span class="p">(</span><span class="kt">string</span> <span class="n">name</span><span class="p">,</span> <span class="kt">object</span> <span class="k">value</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="n">_request</span><span class="p">.</span><span class="nf">AddUrlSegment</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="k">value</span><span class="p">.</span><span class="nf">ToString</span><span class="p">());</span>
+        <span class="k">return</span> <span class="k">this</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="k">public</span> <span class="n">Endpoint</span> <span class="nf">WithParameter</span><span class="p">(</span><span class="kt">string</span> <span class="n">name</span><span class="p">,</span> <span class="kt">object</span> <span class="k">value</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="n">_request</span><span class="p">.</span><span class="nf">AddQueryParameter</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="k">value</span><span class="p">.</span><span class="nf">ToString</span><span class="p">());</span>
+        <span class="k">return</span> <span class="k">this</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="k">public</span> <span class="n">Endpoint</span> <span class="nf">WithData</span><span class="p">(</span><span class="kt">object</span> <span class="n">body</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="n">_request</span><span class="p">.</span><span class="nf">AddBody</span><span class="p">(</span><span class="n">body</span><span class="p">);</span>
+        <span class="k">return</span> <span class="k">this</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="k">public</span> <span class="k">void</span> <span class="nf">Execute</span><span class="p">()</span>
+    <span class="p">{</span>
+        <span class="n">_restClient</span><span class="p">.</span><span class="nf">Execute</span><span class="p">(</span><span class="n">_request</span><span class="p">);</span>
+    <span class="p">}</span>
+
+    <span class="k">internal</span> <span class="n">T</span> <span class="n">Execute</span><span class="p">&lt;</span><span class="n">T</span><span class="p">&gt;()</span>
+    <span class="p">{</span>
+        <span class="kt">var</span> <span class="n">content</span> <span class="p">=</span> <span class="n">_restClient</span><span class="p">.</span><span class="nf">Execute</span><span class="p">(</span><span class="n">_request</span><span class="p">).</span><span class="n">Content</span><span class="p">;</span>
+        <span class="k">return</span> <span class="n">JsonConvert</span><span class="p">.</span><span class="n">DeserializeObject</span><span class="p">&lt;</span><span class="n">T</span><span class="p">&gt;(</span><span class="n">content</span><span class="p">);</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+<p>Такой подход позволяет построить простоую в поддержке и использовании структуру проекта. Все изменения происходят в одном месте и нет повторного дублироввания кода. Сам проект можно посмотреть и скачать на моем профиле GitHub.</p>
+:ET

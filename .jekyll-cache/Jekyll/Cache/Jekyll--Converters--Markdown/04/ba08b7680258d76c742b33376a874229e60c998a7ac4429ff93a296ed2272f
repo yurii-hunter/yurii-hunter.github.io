@@ -1,0 +1,27 @@
+I"R	<p>Многие мануальные тестировщики хотят научиться программированию и стать автоматизаторами. Первый вопрос, с которым все сталкиваются: что же нужно знать? Знать нужно много технологий, инструментов, фреймворков, но далеко не все для начинающих.</p>
+
+<p>Ниже я составлю список того, что должен знать автоматизатор перед первым собеседованием. Примерный план со ссылками на образовательные ресурсы. Так как никакого стандарта нет, то этот список составлен исходя из моего опыта. Список тем, на которые я смотрю на собеседовании.</p>
+
+<h3 id="version-control-system">Version control system</h3>
+<ul>
+  <li>GIT - <a href="https://app.pluralsight.com/library/courses/mastering-git/table-of-contents">Mastering Git</a></li>
+</ul>
+
+<h3 id="programming-language">Programming language</h3>
+<ul>
+  <li>C# basic - <a href="https://app.pluralsight.com/library/courses/c-sharp-fundamentals-with-visual-studio-2015/table-of-contents">C# Fundamentals with Visual Studio 2015</a></li>
+  <li>LINQ - <a href="https://app.pluralsight.com/library/courses/linq-fundamentals-csharp-6/table-of-contents">LINQ Fundamentals</a></li>
+</ul>
+
+<h3 id="selenium">Selenium</h3>
+<ul>
+  <li>Selenium Web Driver - <a href="https://app.pluralsight.com/library/courses/automated-testing-framework-selenium/table-of-contents">Creating an Automated Testing Framework With Selenium</a></li>
+</ul>
+
+<h3 id="unit-test-framework">Unit test framework</h3>
+<ul>
+  <li>xUnit - <a href="https://app.pluralsight.com/library/courses/xunitdotnet2-dotnet-code-testing/table-of-contents">Testing .NET Code with xUnit.net 2</a></li>
+</ul>
+
+<p>Это только лекции. Нужно еще много практики: делать домашние задания, делать свои проекты, делать чужие проекты. Только тогда вы получите хоть какой-то опыт и сможете успешно пройти собеседование.</p>
+:ET
