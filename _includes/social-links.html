@@ -34,6 +34,11 @@
         {% include icons/instagram.html %}
     </a>
     {% endif %}
+    {% if site.slack %}
+    <a href="https://{{ site.slack }}.slack.com" target="_blank">
+        {% include icons/slack.html %}
+    </a>
+    {% endif %}
     {% if site.pinterest %}
     <a href="https://www.pinterest.com/{{ site.pinterest }}" target="_blank">
         {% include icons/pinterest.html %}
