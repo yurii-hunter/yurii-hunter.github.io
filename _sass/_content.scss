@@ -96,6 +96,7 @@
   font-weight: 400;
   font-size: 72px;
   font-family: $font-secondary;
+  font-display: swap;
   float: left;
   line-height: 0.8;
   margin-right: 15px;
@@ -256,6 +257,7 @@
 
 .error-link {
   font-family: $font-secondary;
+  font-display: swap;
   font-style: italic;
 }
 
@@ -280,6 +282,7 @@
 .hero-text {
   color: $gray-darkest;
   font-family: $font-secondary;
+  font-display: swap;
   font-size: 1.66667rem;
   line-height: 1.2;
   margin: 0;
