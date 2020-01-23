@@ -9,7 +9,7 @@ author:
   greetings: "Привет! Меня зовут Юра. Я разработчик в тестировании, пишу заметки об автоматизации, разработке плагинов и о продуктивности."
 favicon: 'assets/images/favicon.ico'
 baseurl: 
-production_url: http://bugshunter.io
+production_url: https://bugshunter.io
 disqus: aqa-works
 # mailchimp_url: '//justgoodthemes.us3.list-manage.com/subscribe/post?u=78f1bab16028354caeb23aecd&amp;id=4a7330d117'
 # Add your GA Tracking Id
