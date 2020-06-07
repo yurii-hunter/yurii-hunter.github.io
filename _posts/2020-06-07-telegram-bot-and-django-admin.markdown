@@ -1,9 +1,10 @@
 ---
 layout: post
 title: "Как я писал telegram бот с админкой на Django"
-date: 2020-06-02 22:00
+date: 2020-06-07 12:00
 tag:
-- github
+- django
+- telegram
 star: false
 category: blog
 author: yurii-hunter
