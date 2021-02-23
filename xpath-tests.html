@@ -7,6 +7,10 @@
     <title>Document</title>
 </head>
 <body>
+    <form action="#">
+        <input type="text" id="username">
+        <input type="password" id="password">
+    </form>
     <div name="header" class="img img-header">
         <ul>
             <li>1</li>
@@ -17,7 +21,21 @@
             <li>6</li>
         </ul>
 
+        <select id="dnumbers" disabled>
+            <option value="1">One</option>
+            <option value="2">Two</option>
+            <option value="3">Three</option>
+            <option value="4">Four</option>
+        </select>
+
         <select id="numbers">
+            <option value="1">One</option>
+            <option value="2">Two</option>
+            <option value="3">Three</option>
+            <option value="4">Four</option>
+        </select>
+
+        <select id="mnumbers" multiple>
             <option value="1">One</option>
             <option value="2">Two</option>
             <option value="3">Three</option>
@@ -37,5 +55,7 @@
         </ul>
         <div>footer</div>
     </div>
+
+    <a href="" onclick="alert('hello')" id="alert">Show Allert</a>
 </body>
 </html>
